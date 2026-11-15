@@ -1,0 +1,27 @@
+workflows:
+  autodiag-pro-vag-debug:
+    name: AutoDiag Pro VAG Debug APK
+    max_build_duration: 60
+    instance_type: linux_x2
+    environment:
+      java: 17
+    scripts:
+      - name: Extract Android project archive
+        script: |
+          set -e
+          test -f AutoDiagPro-Android-Project-v0.3.0.zip
+          mkdir -p project
+          unzip -oq AutoDiagPro-Android-Project-v0.3.0.zip -d project
+          test -f project/settings.gradle
+          test -f project/app/build.gradle
+      - name: Generate Gradle wrapper
+        script: |
+          cd project
+          gradle wrapper --gradle-version 8.9
+      - name: Build debug APK
+        script: |
+          cd project
+          chmod +x gradlew
+          ./gradlew --no-daemon clean assembleDebug
+    artifacts:
+      - project/app/build/outputs/apk/debug/app-debug.apk
